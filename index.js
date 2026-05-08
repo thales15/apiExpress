@@ -1,6 +1,14 @@
 const express = require('express'); //import express
+const cors = require('cors'); // requisidar o cors
 const site = express(); // Criação de uma intância do express
 
+site.use(cors({
+    origin: '*', // libera para qualquer lugar
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-type']
+}));
+
+site.use(express.json());
 
 site.get('/', (req, res)=>{
     res.send('Tela inicial')
