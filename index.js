@@ -1,6 +1,7 @@
 const express = require('express'); //import express
 const cors = require('cors'); // requisidar o cors
 const site = express(); // Criação de uma intância do express
+const {Sequelize, DataTypes} = require('sequelize');
 
 site.use(cors({
     origin: '*', // libera para qualquer lugar
@@ -9,6 +10,30 @@ site.use(cors({
 }));
 
 site.use(express.json());
+
+const sequelize = new Sequelize('banco_apiExpress', 'root', '', 
+    {
+        host: 'localhost',
+        dialect: 'mysql',
+        port: '3306',
+        define: {
+            timestamps: false
+        }
+    }
+);
+
+const User = sequelize.define('User', {
+    id:{
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    name: DataTypes.STRING,
+    email: DataTypes.STRING,
+    status: DataTypes.STRING,
+}, {
+    tableName: 'usuarios'
+});
 
 site.get('/', (req, res)=>{
     res.send('Tela inicial')
@@ -33,13 +58,38 @@ site.get('/lista', (req, res)=>{
     res.json(lista);
 })
 
+//Rota do Banco
+
+site.get('/usuarios', async (req, res) => {
+    try{
+        const usuariosBanco = await User.findAll();
+        res.json(usuariosBanco);
+    }catch(error){
+        res.status(500).json({error: 'Erro ao buscar dados: ' + error.message});
+    }
+})
+
+
+
 
 //Inicializa o servidor do site
 //Sempre fica no final do código
-site.listen(4000, (error) => {
-    if(error){
-        console.log('Seu lixo imundo', error);
-    }else{
-        console.log('funcionou seu MISERAVEL');
-    }
+// site.listen(4000, (error) => {
+//     if(error){
+//         console.log('Seu lixo imundo', error);
+//     }else{
+//         console.log('funcionou seu MISERAVEL');
+//     }
+// })
+
+sequelize.authenticate()
+.then(() => {
+    console.log('conexão sucedida');
+
+    site.listen(4000, () => {
+        console.log('serviodor funcionando')
+    });
 })
+.catch((error) => {
+    console.error('não foi possivel conectar com o banco', error);
+});
