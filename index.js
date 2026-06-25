@@ -69,6 +69,18 @@ site.get('/usuarios', async (req, res) => {
     }
 })
 
+// Rota do INSERT
+site.post('/usuarios', async (req, res) => {
+  try {
+    const { name, email, status} = req.body;
+    const novoUsuario = await User.create({ name, email, status});
+    return res.status(201).json(novoUsuario); 
+  } catch (error) {
+    console.error("Erro no servidor:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 
